@@ -5,6 +5,8 @@
 #include <gumbo.h>
 #include "crawler.h"
 #include <regex>
+#include <fstream>
+
 
 WebCrawler::WebCrawler() {
     curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -102,7 +104,19 @@ void WebCrawler::crawlDepth(const std::string& url, int depth, const std::vector
             std::vector<std::string> validLinks;
             for (const auto& link : links) {
                 if (isValidUrl(link)) {
-                    validLinks.push_back(link);
+                    // Check if the link has already been visited
+                    if (visitedUrls.find(link) == visitedUrls.end()) {
+                        validLinks.push_back(link);
+                        visitedUrls.insert(link);
+                        // write to file
+                        std::ofstream myfile;
+                        myfile.open ("links.txt", std::ios_base::app);
+                        myfile << link << std::endl;
+                        myfile.close();
+
+                    } else {
+                        std::cerr << "Link already visited: " << link << std::endl;
+                    }
                 }
             }
             for (const auto& link : validLinks) {

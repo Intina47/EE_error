@@ -1,5 +1,6 @@
 #ifndef CRAWLER_H
 #define CRAWLER_H
+#include <unordered_set>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -19,6 +20,7 @@ private:
     CURL *curl;
     CURLcode res;
     std::string readBuffer;
+    std::unordered_set<std::string> visitedUrls;
     static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
     void extractLinksRecursive(GumboNode* node, std::vector<std::string>& links);
     std::vector<std::string> splitIntoSentences(const std::string& text);
