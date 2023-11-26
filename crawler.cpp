@@ -4,6 +4,7 @@
 #include <curl/curl.h>
 #include <gumbo.h>
 #include "crawler.h"
+#include <regex>
 
 WebCrawler::WebCrawler() {
     curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -66,6 +67,56 @@ std::string WebCrawler::extractText(const std::string& html, const std::string& 
     text += " [Source: " + source + "]";
     return text;
 }
+
+bool isValidUrl(const std::string& url) {
+    std::regex urlRegex("(https?|ftp)://[\\w\\-_]+(\\.[\\w\\-_]+)+([a-zA-Z0-9\\-.,@?^=%&:/~+#]*[a-zA-Z0-9\\-@?^=%&/~+#])?");
+    return std::regex_match(url, urlRegex);
+}
+
+void WebCrawler::crawlDepth(const std::string& url, int depth, const std::vector<std::string>& keywords) {
+    if (depth < 0) {
+        std::cerr << "Invalid depth parameter." << std::endl;
+        return;
+    }
+
+    std::string html = crawl(url);
+    std::string source = "Source: " + url;
+    std::string text = extractText(html, source);
+
+    // Search keywords in the current page
+    std::vector<std::string> keywordResults = searchKeywords(text, keywords, source);
+    if(!keywordResults.empty()) {
+        std::cout << source << std::endl;
+        std::cout << keywordResults.size() << std::endl;
+        for (auto& result : keywordResults) {
+                std::cout << result << std::endl;
+        }
+    } else {
+            std::cerr << "No Search results found on: " << url << std::endl;
+        }
+
+    if (depth > 0) {
+        // Extract links and crawl each linked page with reduced depth
+        std::vector<std::string> links = extractLinks(html);
+        if(!links.empty()) {
+            std::cout << "Links at: " << url << std::endl;
+            std::cout << links.size() << std::endl;
+            // sanitize links to make sure they are valid if url is valid add it int a vector array that will be used to crawl
+            std::vector<std::string> validLinks;
+            for (const auto& link : links) {
+                if (isValidUrl(link)) {
+                    validLinks.push_back(link);
+                }
+            }
+            for (const auto& link : validLinks) {
+                crawlDepth(link, depth - 1, keywords);
+            }
+        } else {
+            std::cerr << "No links found on: " << url << std::endl;
+        }
+    }
+}
+
 // private methods
 size_t WebCrawler::WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     ((std::string*)userp)->append((char*)contents, size * nmemb);

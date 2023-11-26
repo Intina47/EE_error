@@ -14,6 +14,7 @@ public:
     std::vector<std::string> extractLinks(const std::string& html);
     std::vector<std::string> searchKeywords(const std::string& html, const std::vector<std::string>& keywords, const std::string& source);
     std::string extractText(const std::string& html, const std::string& source);
+    void crawlDepth(const std::string& url, int depth,const std::vector<std::string>& keywords);
 private:
     CURL *curl;
     CURLcode res;
