@@ -1,6 +1,6 @@
 #include <vector>
 #include <string>
-#include <iostream> // for std::cerr
+#include <iostream>
 #include <curl/curl.h>
 #include <gumbo.h>
 #include "crawler.h"
@@ -48,7 +48,6 @@ std::vector<std::string> WebCrawler::searchKeywords(const std::string& html, con
     for (const auto& sentence : sentences) {
         for (const auto& keyword : keywords) {
             if (containsKeyword(sentence, keyword)) {
-                // append sources to results
                 std::string resultWithSource = sentence + + " [Source: " + source + "]";
                 results.push_back(resultWithSource);
                 break;
@@ -63,7 +62,6 @@ std::string WebCrawler::extractText(const std::string& html, const std::string& 
     GumboOutput* output = gumbo_parse(html.c_str());
     std::string text = extractTextRecursive(output->root);
     gumbo_destroy_output(&kGumboDefaultOptions, output);
-    // append source to text
     text += " [Source: " + source + "]";
     return text;
 }
@@ -101,7 +99,6 @@ void WebCrawler::crawlDepth(const std::string& url, int depth, const std::vector
         if(!links.empty()) {
             std::cout << "Links at: " << url << std::endl;
             std::cout << links.size() << std::endl;
-            // sanitize links to make sure they are valid if url is valid add it int a vector array that will be used to crawl
             std::vector<std::string> validLinks;
             for (const auto& link : links) {
                 if (isValidUrl(link)) {
