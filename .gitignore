@@ -1,6 +1,6 @@
 .vscode
 crawler.dSYM
 crawler
-crawler.dSYM
-.txt
-.exe
+*.exe
+*.txt
+
