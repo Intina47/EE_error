@@ -11,8 +11,8 @@ LIBS = -lcurl -lgumbo
 TARGET = crawler
 
 # Source files
-SRCS = main.cpp crawler.cpp
-
+SRCS = main.cpp crawler.cpp crawlDepth.cpp
+# crawlerBreadth.cpp crawlerHelper.cpp
 all: $(TARGET)
 
 $(TARGET): $(SRCS)

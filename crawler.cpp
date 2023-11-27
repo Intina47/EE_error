@@ -45,8 +45,13 @@ std::vector<std::string> WebCrawler::extractLinks(const std::string& html) {
 
 // searchKeywords
 std::vector<std::string> WebCrawler::searchKeywords(const std::string& html, const std::vector<std::string>& keywords, const std::string& source) {
-    std::vector<std::string> sentences = splitIntoSentences(html);
     std::vector<std::string> results;
+    GumboOutput* output = gumbo_parse(html.c_str());
+    std::string text = extractTextRecursive(output->root);
+    gumbo_destroy_output(&kGumboDefaultOptions, output);
+
+    // priorize searching in the body content
+    std::vector<std::string> sentences = splitIntoSentences(text);
     for (const auto& sentence : sentences) {
         for (const auto& keyword : keywords) {
             if (containsKeyword(sentence, keyword)) {
@@ -68,66 +73,27 @@ std::string WebCrawler::extractText(const std::string& html, const std::string& 
     return text;
 }
 
-bool isValidUrl(const std::string& url) {
+//isValidUrl
+bool WebCrawler::isValidUrl(const std::string& url) {
     std::regex urlRegex("(https?|ftp)://[\\w\\-_]+(\\.[\\w\\-_]+)+([a-zA-Z0-9\\-.,@?^=%&:/~+#]*[a-zA-Z0-9\\-@?^=%&/~+#])?");
     return std::regex_match(url, urlRegex);
 }
 
-void WebCrawler::crawlDepth(const std::string& url, int depth, const std::vector<std::string>& keywords) {
-    if (depth < 0) {
-        std::cerr << "Invalid depth parameter." << std::endl;
-        return;
+// searchHeadlines
+std::vector<std::string> WebCrawler::searchHeadlines(const std::string& html, const std::string& source) {
+    std::vector<std::string> headlines;
+    GumboOutput* output = gumbo_parse(html.c_str());
+    std::string text = extractTextRecursive(output->root);
+    gumbo_destroy_output(&kGumboDefaultOptions, output);
+
+    // priorize searching in the body content
+    std::vector<std::string> sentences = splitIntoSentences(text);
+    for (const auto& sentence : sentences) {
+        std::string resultWithSource = sentence + + " [Source: " + source + "]";
+        headlines.push_back(resultWithSource);
     }
-
-    std::string html = crawl(url);
-    std::string source = "Source: " + url;
-    std::string text = extractText(html, source);
-
-    // Search keywords in the current page
-    std::vector<std::string> keywordResults = searchKeywords(text, keywords, source);
-    if(!keywordResults.empty()) {
-        std::cout << source << std::endl;
-        std::cout << keywordResults.size() << std::endl;
-        for (auto& result : keywordResults) {
-                std::cout << result << std::endl;
-        }
-    } else {
-            std::cerr << "No Search results found on: " << url << std::endl;
-        }
-
-    if (depth > 0) {
-        // Extract links and crawl each linked page with reduced depth
-        std::vector<std::string> links = extractLinks(html);
-        if(!links.empty()) {
-            std::cout << "Links at: " << url << std::endl;
-            std::cout << links.size() << std::endl;
-            std::vector<std::string> validLinks;
-            for (const auto& link : links) {
-                if (isValidUrl(link)) {
-                    // Check if the link has already been visited
-                    if (visitedUrls.find(link) == visitedUrls.end()) {
-                        validLinks.push_back(link);
-                        visitedUrls.insert(link);
-                        // write to file
-                        std::ofstream myfile;
-                        myfile.open ("links.txt", std::ios_base::app);
-                        myfile << link << std::endl;
-                        myfile.close();
-
-                    } else {
-                        std::cerr << "Link already visited: " << link << std::endl;
-                    }
-                }
-            }
-            for (const auto& link : validLinks) {
-                crawlDepth(link, depth - 1, keywords);
-            }
-        } else {
-            std::cerr << "No links found on: " << url << std::endl;
-        }
-    }
+    return headlines;
 }
-
 // private methods
 size_t WebCrawler::WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     ((std::string*)userp)->append((char*)contents, size * nmemb);
@@ -166,24 +132,33 @@ std::vector<std::string> WebCrawler::splitIntoSentences(const std::string& text)
 bool WebCrawler::containsKeyword(const std::string& text, const std::string& keyword) {
     return text.find(keyword) != std::string::npos;
 }
-
-//extractTextRecursive
 std::string WebCrawler::extractTextRecursive(GumboNode* node) {
     if (node->type == GUMBO_NODE_TEXT) {
         return std::string(node->v.text.text);
     } else if (node->type == GUMBO_NODE_ELEMENT &&
                node->v.element.tag != GUMBO_TAG_SCRIPT &&
                node->v.element.tag != GUMBO_TAG_STYLE) {
-        std::string contents = "";
-        GumboVector* children = &node->v.element.children;
-        for (unsigned int i = 0; i < children->length; ++i) {
-            const std::string text = extractTextRecursive(static_cast<GumboNode*>(children->data[i]));
-            if (i != 0 && !text.empty()) {
-                contents.append(" ");
+
+        // prioritize searching from headline
+        if (node->v.element.tag == GUMBO_TAG_H1
+            || node->v.element.tag == GUMBO_TAG_H2
+            || node->v.element.tag == GUMBO_TAG_H3
+            || node->v.element.tag == GUMBO_TAG_H4
+            || node->v.element.tag == GUMBO_TAG_H5
+            || node->v.element.tag == GUMBO_TAG_H6) {
+            return extractTextRecursive(static_cast<GumboNode*>(node->v.element.children.data[0]));
+        } else {
+            std::string contents = "";
+            GumboVector* children = &node->v.element.children;
+            for (unsigned int i = 0; i < children->length; ++i) {
+                const std::string text = extractTextRecursive(static_cast<GumboNode*>(children->data[i]));
+                if (i != 0 && !text.empty()) {
+                    contents.append(" ");
+                }
+                contents.append(text);
             }
-            contents.append(text);
+            return contents;
         }
-        return contents;
     } else {
         return "";
     }
