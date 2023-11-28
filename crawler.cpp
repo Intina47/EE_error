@@ -79,6 +79,14 @@ bool WebCrawler::isValidUrl(const std::string& url) {
     return std::regex_match(url, urlRegex);
 }
 
+//extractPaginationLinks
+std::vector<std::string> WebCrawler::extractPaginationLinks(const std::string& html) {
+    std::vector<std::string> paginationLinks;
+    GumboOutput* output = gumbo_parse(html.c_str());
+    extractLinksRecursive(output->root, paginationLinks);
+    gumbo_destroy_output(&kGumboDefaultOptions, output);
+    return paginationLinks;
+}
 // searchHeadlines
 std::vector<std::string> WebCrawler::searchHeadlines(const std::string& html, const std::string& source) {
     std::vector<std::string> headlines;
@@ -94,6 +102,7 @@ std::vector<std::string> WebCrawler::searchHeadlines(const std::string& html, co
     }
     return headlines;
 }
+
 // private methods
 size_t WebCrawler::WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     ((std::string*)userp)->append((char*)contents, size * nmemb);

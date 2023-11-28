@@ -17,7 +17,7 @@ public:
     std::string extractText(const std::string& html, const std::string& source);
     void crawlDepth(const std::string& url, int depth,const std::vector<std::string>& keywords);
     std::vector<std::string> searchHeadlines(const std::string& html,const std::string& source);
-    bool isValidUrl(const std::string& url);
+    std::vector<std::string> extractPaginationLinks(const std::string& html);
 private:
     CURL *curl;
     CURLcode res;
@@ -28,6 +28,7 @@ private:
     std::vector<std::string> splitIntoSentences(const std::string& text);
     bool containsKeyword(const std::string& text, const std::string& keyword);
     std::string extractTextRecursive(GumboNode* node);
+    bool isValidUrl(const std::string& url);
 };
 
 #endif //CRAWLER_H

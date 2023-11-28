@@ -7,7 +7,7 @@
 
 int main() {
     WebCrawler crawler;
-    std::string url = "https://www.kenyans.co.ke/news";
+    std::string url = "https://en.wikipedia.org/wiki/Main_Page";
     std::vector<std::string> keywords = {"#NoExcuse", "VAWG", "Spotlight", "war",};
     crawler.crawlDepth(url, 2, keywords);
 

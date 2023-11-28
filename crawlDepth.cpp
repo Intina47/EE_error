@@ -59,5 +59,23 @@ void WebCrawler::crawlDepth(const std::string& url, int depth, const std::vector
         } else {
             std::cerr << "No links found on: " << url << std::endl;
         }
+
+        // Check for pagination and crawl next pages
+        std::vector<std::string> paginationLinks = extractPaginationLinks(html);
+        if(!paginationLinks.empty()) {
+            for (const auto& paginationLink : paginationLinks) {
+                if (isValidUrl(paginationLink)) {
+                    // Check if the link has already been visited
+                    if (visitedUrls.find(paginationLink) == visitedUrls.end()) {
+                        visitedUrls.insert(paginationLink);
+                        crawlDepth(paginationLink, depth, keywords);
+                    } else {
+                        std::cerr << "Link already visited: " << paginationLink << std::endl;
+                    }
+                }
+            }
+        } else {
+            std::cerr << "No pagination links found on: " << url << std::endl;
+        }
     }
 }
