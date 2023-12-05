@@ -19,6 +19,7 @@ public:
     std::vector<std::string> searchHeadlines(const std::string& html,const std::string& source);
     std::vector<std::string> extractPaginationLinks(const std::string& html);
 private:
+    std::vector<std::string> keywords;
     CURL *curl;
     CURLcode res;
     std::string readBuffer;
