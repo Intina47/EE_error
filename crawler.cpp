@@ -7,7 +7,6 @@
 #include <regex>
 #include <fstream>
 
-
 WebCrawler::WebCrawler() {
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
@@ -16,6 +15,7 @@ WebCrawler::WebCrawler() {
 WebCrawler::~WebCrawler() {
     curl_easy_cleanup(curl);
     curl_global_cleanup();
+    gumbo_destroy_output(&kGumboDefaultOptions, output);
 }
 
 std::string WebCrawler::crawl(const std::string& url) {
@@ -28,6 +28,7 @@ std::string WebCrawler::crawl(const std::string& url) {
         if (res != CURLE_OK) {
             std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
         }
+        output = gumbo_parse(readBuffer.c_str());
         return readBuffer;
     } else {
         std::cerr << "curl_easy_init() failed to initialize libcurl" << std::endl;
@@ -35,11 +36,9 @@ std::string WebCrawler::crawl(const std::string& url) {
     }
 }
 
-std::vector<std::string> WebCrawler::extractLinks(const std::string& html) {
+std::vector<std::string> WebCrawler::extractLinks(GumboNode* html) {
     std::vector<std::string> links;
-    GumboOutput* output = gumbo_parse(html.c_str());
-    extractLinksRecursive(output->root, links);
-    gumbo_destroy_output(&kGumboDefaultOptions, output);
+    extractLinksRecursive(html, links);
     return links;
 }
 
@@ -103,6 +102,10 @@ std::vector<std::string> WebCrawler::searchHeadlines(const std::string& html, co
     return headlines;
 }
 
+// getOutputRoot
+GumboNode* WebCrawler::getOutputRoot() const {
+    return output->root;
+}
 // private methods
 size_t WebCrawler::WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     ((std::string*)userp)->append((char*)contents, size * nmemb);
