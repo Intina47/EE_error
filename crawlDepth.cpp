@@ -45,7 +45,9 @@ void WebCrawler::crawlDepth(const std::string& url, int depth, const std::vector
 
         if (depth > 0) {
         // Extract links and crawl each linked page with reduced depth
-        std::vector<std::string> links = extractLinks(html);
+        GumboOutput* output = gumbo_parse(html.c_str());
+        std::vector<std::string> links = extractLinks(output->root);
+        gumbo_destroy_output(&kGumboDefaultOptions, output);
         if(!links.empty()) {
             std::cout << "Links at: " << currentUrl << std::endl;
             std::cout << links.size() << std::endl;
