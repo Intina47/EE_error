@@ -18,17 +18,6 @@ void WebCrawler::crawlDepth(const std::string& url, int depth, const std::vector
 
     // assign keywords to a variable
     this->keywords = keywords;
-    std::cout << "creating an instance of parrallecrawler : " << std::endl;
-    // create an instance of parrallecrawler
-    ParallelCrawler parallelCrawler(0);
-    std::cout << "starting the parallel crawler : " << std::endl;
-    // parallelCrawler.start(url);
-    std::thread parallelCrawlerThread([&]() {
-        parallelCrawler.start(url);
-    });
-    // std::cout << "waiting for the parallel crawler to finish : " << std::endl;
-    // parallelCrawler.waitTillDone();
-    // std::cout << "parallel crawler finished : " << std::endl;
     //queue of urls to crawl
     std::queue<std::string> linkQueue;
     //add the current url to the queue
@@ -102,7 +91,4 @@ void WebCrawler::crawlDepth(const std::string& url, int depth, const std::vector
         }
     }
     }
-    parallelCrawler.waitTillDone();
-    parallelCrawlerThread.join();
-    
 }
