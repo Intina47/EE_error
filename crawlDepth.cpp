@@ -32,14 +32,17 @@ void WebCrawler::crawlDepth(const std::string& url, int depth, const std::vector
         std::string source = "Source: " + currentUrl;
         std::string text = extractText(html, source);
 
-        // Search keywords in the current page
+        // Search keywords in the current page )
         std::vector<std::string> keywordResults = searchHeadlines(text, source);
         if(!keywordResults.empty()) {
             std::cout << source << std::endl;
             std::cout << keywordResults.size() << std::endl;
             for (auto& result : keywordResults) {
+                std::cout << "____________-------------------_________________" << std::endl;
                     std::cout << result << std::endl;
+                    globalResults.push_back(result);
             }
+            nlpClient.sendToNLP(globalResults);
         } else {
                 std::cerr << "No Search results found on: " << currentUrl << std::endl;
             }

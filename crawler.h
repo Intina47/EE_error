@@ -6,6 +6,7 @@
 #include <iostream>
 #include <curl/curl.h>
 #include <gumbo.h>
+#include "NLPServerClient.h"
 
 class WebCrawler {
 public:
@@ -26,6 +27,8 @@ private:
     std::string readBuffer;
     std::unordered_set<std::string> visitedUrls;
     GumboOutput* output;
+    std::vector<std::string> globalResults;
+    NLPServerClient nlpClient;
     static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
     void extractLinksRecursive(GumboNode* node, std::vector<std::string>& links);
     std::vector<std::string> splitIntoSentences(const std::string& text);
