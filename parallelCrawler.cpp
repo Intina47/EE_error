@@ -55,6 +55,7 @@ void ParallelCrawler::workerThread(WorkerParams params) {
         WebCrawler crawler;
         crawler.crawlDepth(url, params.maxDepth, params.searchString);
         std::vector<std::string> links = crawler.extractLinks(crawler.getOutputRoot());
+        std::cout << "Extracting links" << std::endl;
         for (const auto& link : links) {
             this->addToQueue(link);
             logger("adding to queue : " + link);
@@ -88,7 +89,6 @@ void ParallelCrawler::addToQueue(const std::string& url) {
     logger("notifying threads done : ");
 }
 
-
 // Remove URL from queue
 std::string ParallelCrawler::removeFromQueue() {
     std::unique_lock<std::mutex> lock(this->urlqueue_mutex);
@@ -114,11 +114,13 @@ void ParallelCrawler::notifyThreads() {
 
 // Notify queue not empty
 void ParallelCrawler::notifyQueueNotEmpty() {
+    logger("notifying queue not empty : ");
     this->queueNotEmpty_cv.notify_one();
 }
 
 // Notify done
 void ParallelCrawler::notifyDone() {
+    logger("notifying done : ");
     this->urlqueue_cv.notify_all();
 }
 
@@ -144,12 +146,14 @@ void ParallelCrawler::waitTillDone() {
 
 // Decrement number of active threads
 void ParallelCrawler::decrementNumActiveThreads() {
+    logger("decrementing numActiveThreads : ");
     this->numActiveThreads--;
 }
 
 // Increment number of active threads if the number of active threads is less than the number of threads
 void ParallelCrawler::incrementNumActiveThreads() {
     if (this->getNumActiveThreads() < this->getNumThreads()) {
+        logger("incrementing numActiveThreads : ");
         this->numActiveThreads++;
     }
 }
@@ -171,6 +175,7 @@ int ParallelCrawler::getNumActiveThreads() {
 
 // Get number of threads
 int ParallelCrawler::getNumThreads() {
+    logger("numThreads : " + std::to_string(this->numThreads));
     return this->numThreads;
 }
 

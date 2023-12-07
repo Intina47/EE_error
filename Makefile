@@ -2,7 +2,7 @@
 CC = g++
 
 # Compiler flags
-CFLAGS = -Wall -Wextra -Werror -pedantic -std=c++11 -g
+CFLAGS = -Wall -Wextra -pedantic -std=c++11 -g
 
 # Libraries
 LIBS = -lcurl -lgumbo
