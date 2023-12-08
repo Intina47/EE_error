@@ -3,3 +3,10 @@ crawler.dSYM
 crawler
 *.exe
 *.txt
+# ignore python environment files
+venv
+bin
+include
+lib
+lib64
+hugging
