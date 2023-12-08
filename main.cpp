@@ -17,17 +17,6 @@ int main( int argc, char** argv )
     }
 
     crawler.crawlDepth(url, 2, keywords);
-    // std::cout << "creating an instance of parrallecrawler : " << std::endl;
-    // // create an instance of parrallecrawler
-    // ParallelCrawler parallelCrawler(numOfInstances);
-    // std::cout << "starting the parallel crawler : " << std::endl;
-    // std::thread parallelCrawlerThread([&]() {
-    //     parallelCrawler.start(url);
-    // });
-    // parallelCrawler.waitTillDone();
-    // std::cout << "joining the parallel crawler thread : " << std::endl;
-    // parallelCrawlerThread.join();
-    // std::cout << "joining the parallel crawler thread : " << std::endl;
-    // return 0;
 
+    return 0;
 }

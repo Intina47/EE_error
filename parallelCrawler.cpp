@@ -6,10 +6,9 @@
 #include <vector>
 #include <atomic>
 #include <iostream>
-#include "parallelCrawler.h"
 #include <fstream>
+#include "parallelCrawler.h"
 
-// Define a logger function
 void logger(const std::string& message) {
     std::ofstream logFile;
     logFile.open("log.txt", std::ios_base::app); // append instead of overwrite

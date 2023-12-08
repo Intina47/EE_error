@@ -42,7 +42,12 @@ void WebCrawler::crawlDepth(const std::string& url, int depth, const std::vector
                     std::cout << result << std::endl;
                     globalResults.push_back(result);
             }
-            nlpClient.sendToNLP(globalResults);
+            std::string annotedResults = nlpClient.sendToNLP(globalResults);
+            std::ofstream myfile;
+            myfile.open ("results.txt", std::ios_base::app);
+            myfile << annotedResults << std::endl;
+            myfile.close();
+            
         } else {
                 std::cerr << "No Search results found on: " << currentUrl << std::endl;
             }
