@@ -1,13 +1,28 @@
-import sys
-print(sys.executable)
 from transformers import pipeline
 
-# Initialize a text-generation pipeline with the gpt-2 model
-text_generator = pipeline("text-generation", model="gpt2")
+# Sample headlines
+# read from file
+headlines = []
+with open('headlines.txt', 'r') as f:
+    headlines = f.readlines()
+    
+# remove \n
+headlines = [h.strip() for h in headlines]
 
-# Generate a description of a really cute dog
-text = text_generator("A really cute dog is", max_length=50)[0]['generated_text']
+# Summarization and text generation pipelines
+summarizer = pipeline("summarization")
+text_generator = pipeline("text-generation")
 
-print('------------------')
-print(text)
-print('------------------') 
+# Perform summarization and text generation for each headline
+for headline in headlines:
+    # Perform summarization
+    summary = summarizer(headline, max_length=50, min_length=10, length_penalty=2.0, num_beams=4)[0]["summary_text"]
+
+    # Perform text generation
+    generated_text = text_generator(f"Generate news about: {headline}", max_length=50, num_beams=4)[0]["generated_text"]
+
+    # Print the results
+    print(f"Headline: {headline}")
+    print(f"Summary: {summary}")
+    print(f"Generated Text: {generated_text}")
+    print("=" * 50)

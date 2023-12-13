@@ -7,7 +7,6 @@
 #include "crawler.h"
 #include <regex>
 #include <fstream>
-#include <queue>
 #include "parallelCrawler.h"
 
 void WebCrawler::crawlDepth(const std::string& url, int depth, const std::vector<std::string>& keywords) {
@@ -19,7 +18,6 @@ void WebCrawler::crawlDepth(const std::string& url, int depth, const std::vector
     // assign keywords to a variable
     this->keywords = keywords;
     //queue of urls to crawl
-    std::queue<std::string> linkQueue;
     //add the current url to the queue
     linkQueue.push(url);
 
@@ -40,13 +38,18 @@ void WebCrawler::crawlDepth(const std::string& url, int depth, const std::vector
             for (auto& result : keywordResults) {
                 std::cout << "____________-------------------_________________" << std::endl;
                     std::cout << result << std::endl;
+                    // lets add this results to a json file too
+                    std::ofstream myfile;
+                    myfile.open ("data.json", std::ios_base::app);
+                    myfile << result << std::endl;
+                    myfile.close();
                     globalResults.push_back(result);
             }
-            std::string annotedResults = nlpClient.sendToNLP(globalResults);
-            std::ofstream myfile;
-            myfile.open ("results.txt", std::ios_base::app);
-            myfile << annotedResults << std::endl;
-            myfile.close();
+            // std::string annotedResults = nlpClient.sendToNLP(globalResults);
+            // std::ofstream myfile;
+            // myfile.open ("results.txt", std::ios_base::app);
+            // myfile << annotedResults << std::endl;
+            // myfile.close();
             
         } else {
                 std::cerr << "No Search results found on: " << currentUrl << std::endl;

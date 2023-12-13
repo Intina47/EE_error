@@ -7,6 +7,7 @@
 #include <curl/curl.h>
 #include <gumbo.h>
 #include "NLPServerClient.h"
+#include <queue>
 
 class WebCrawler {
 public:
@@ -20,6 +21,7 @@ public:
     std::vector<std::string> searchHeadlines(const std::string& html,const std::string& source);
     std::vector<std::string> extractPaginationLinks(const std::string& html);
     GumboNode* getOutputRoot() const;
+    std::queue<std::string> linkQueue;
 private:
     std::vector<std::string> keywords;
     CURL *curl;

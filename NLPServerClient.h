@@ -53,16 +53,16 @@ class NLPServerClient {
                 curl_easy_cleanup(curl);
             }
             curl_global_cleanup();
-             return serverResponse;
             headlinesQueue.pop_front();
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
+        return serverResponse;
     }
 
     private:
     std::string serverResponse;
     size_t totalLength = 0;
-    static constexpr size_t MAX_REQUEST_LENGTH = 100000;
+    static constexpr size_t MAX_REQUEST_LENGTH = 10000000000;
     std::deque<std::string> headlinesQueue;
     static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp){
         ((std::string*)userp)->append((char*)contents, size * nmemb);

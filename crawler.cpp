@@ -69,6 +69,11 @@ std::string WebCrawler::extractText(const std::string& html, const std::string& 
     std::string text = extractTextRecursive(output->root);
     gumbo_destroy_output(&kGumboDefaultOptions, output);
     text += " [Source: " + source + "]";
+    // add to txt file
+    std::ofstream myfile;
+    myfile.open ("raw_data.txt", std::ios_base::app);
+    myfile << text << std::endl;
+    myfile.close();
     return text;
 }
 
